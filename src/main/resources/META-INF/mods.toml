@@ -1,0 +1,12 @@
+modLoader="javafml"
+loaderVersion="[28.1.102,)"
+
+[[mods]]
+modId="spanorama"
+version="${file.jarVersion}"
+displayName="Panorama"
+credits="liachmodded for making runorama which helped a lot and Cadiboo for his example on keybindings"
+authors="suppergerrie2"
+description='''
+Adds the ability to make panoramas in minecraft, these can then be put in resourcepacks to display on the main menu.
+'''
