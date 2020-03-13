@@ -78,7 +78,7 @@ public class PanoramaMod {
     }
 
     private static void takeScreenshot(final int stage, final long time) {
-        MainWindow window = Minecraft.getInstance().mainWindow;
+        MainWindow window = Minecraft.getInstance().getMainWindow();
         final NativeImage screenshot = ScreenShotHelper
                 .createScreenshot(window.getFramebufferWidth(), window.getFramebufferHeight(),
                                   Minecraft.getInstance().getFramebuffer());
@@ -204,17 +204,11 @@ public class PanoramaMod {
     private void setRandomPanorama(@Nullable MainMenuScreen screen) {
 
         //If custom panoramas are disabled make sure the vanilla resources are set
-        if (!Config.useCustomPanorama) {
-            MainMenuScreen.PANORAMA_RESOURCES = new RenderSkyboxCube(
-                    new ResourceLocation("textures/gui/title/background/panorama"));
-            return;
-        }
-
-        DynamicTexture[] textures = getRandomPanorama();
-        if (textures != null) {
-            MainMenuScreen.PANORAMA_RESOURCES = new RenderDynamicSkyboxCube(getRandomPanorama());
-            if (screen != null) screen.panorama = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
-        }
+        DynamicTexture[] textures = Config.useCustomPanorama ? getRandomPanorama() : null;
+        MainMenuScreen.PANORAMA_RESOURCES = textures != null ? new RenderDynamicSkyboxCube(
+                textures) : new RenderSkyboxCube(
+                new ResourceLocation("textures/gui/title/background/panorama"));
+        if (screen != null) screen.panorama = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
     }
 
     public void openMainMenu(GuiOpenEvent event) {
