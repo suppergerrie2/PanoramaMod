@@ -1,0 +1,11 @@
+{
+  "homepage": "https://www.curseforge.com/minecraft/mc-mods/panorama-creator",
+  "1.14.4": {
+    "1.0": "- Added ability to make a panorama\n- Added random selection of panorama on main screen",
+    "1.1": "- Added config to disable random panoramas.\n- Added config to change panorama save folder\n- Added panorama cache so they dont have to be loaded everytime the main menu is loaded"
+  },
+  "promos": {
+    "1.14.4-latest": "1.1",
+    "1.14.4-recommended": "1.1"
+  }
+}

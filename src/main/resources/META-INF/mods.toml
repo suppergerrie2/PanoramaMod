@@ -1,10 +1,13 @@
 modLoader="javafml"
 loaderVersion="[28.1.102,)"
+issueTrackerURL="https://github.com/suppergerrie2/PanoramaMod/issues"
 
 [[mods]]
 modId="spanorama"
 version="${file.jarVersion}"
+updateJSONURL="https://github.com/suppergerrie2/PanoramaMod/blob/master/update.json"
 displayName="Panorama"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/panorama-creator"
 credits="liachmodded for making runorama which helped a lot and Cadiboo for his example on keybindings"
 authors="suppergerrie2"
 description='''
