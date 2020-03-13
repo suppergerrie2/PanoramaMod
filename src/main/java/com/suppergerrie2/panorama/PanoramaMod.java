@@ -28,10 +28,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Random;
 
 import static com.suppergerrie2.panorama.Config.panoramaSaveFolder;
@@ -42,13 +44,13 @@ public class PanoramaMod {
     public static final KeyBinding createPanoramaKey = new KeyBinding(MOD_ID + ".key.createPanorama", GLFW.GLFW_KEY_H,
                                                                       "key.categories." + MOD_ID);
     private static final Logger LOGGER = LogManager.getLogger();
+    static HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
 
     static {
         ClientRegistry.registerKeyBinding(createPanoramaKey);
     }
 
     boolean makePanorama = false;
-
     long startTime = System.currentTimeMillis();
     Vector3f[] stages = new Vector3f[]{
             new Vector3f(0, 0, 0),
@@ -126,9 +128,22 @@ public class PanoramaMod {
         });
     }
 
+    /**
+     * Get a random panorama from the {@link Config#panoramaSaveFolder}.
+     * Panoramas are saved in the following format:
+     * {@link Config#panoramaSaveFolder}/{unix timestamp}/panorama_%d.png
+     * Where %d is a number between 0 and 5 (inclusive)
+     * <p>
+     * If no panorama is found null is returned
+     *
+     * @return A {@link DynamicTexture} array with size 6, or null if no panorama is found
+     */
+    @Nullable
     static DynamicTexture[] getRandomPanorama() {
         Random random = new Random();
+
         try {
+            //Make sure the panorama save folder exists and create it if it doesnt
             if (!panoramaSaveFolder.toFile().exists()) {
                 if (!panoramaSaveFolder.toFile().mkdirs()) {
                     LOGGER.error("Failed to create panorama save folder: {}", panoramaSaveFolder.toAbsolutePath());
@@ -136,6 +151,7 @@ public class PanoramaMod {
                 }
             }
 
+            //Filter out any folders that dont have the needed images
             Path[] paths = Files.list(panoramaSaveFolder).filter(path -> {
                 for (int i = 0; i < 6; i++) {
                     if (!path.resolve(String.format("panorama_%d.png", i)).toFile().exists()) {
@@ -145,22 +161,33 @@ public class PanoramaMod {
                 return true;
             }).toArray(Path[]::new);
 
+            //If no paths are remaining return null
             if (paths.length == 0) {
                 return null;
             } else {
-                Path path = paths[random.nextInt(paths.length)];
+                //If there are paths choose a random one
+                Path theChosenOne = paths[random.nextInt(paths.length)];
 
-                DynamicTexture[] textures = new DynamicTexture[6];
+                //Check if the images are loaded already, and if not load them
+                return skyboxTextureCache.computeIfAbsent(theChosenOne, (path) -> {
 
-                for (int i = 0; i < textures.length; i++) {
-                    InputStream stream = Files.newInputStream(path.resolve(String.format("panorama_%d.png", i)));
-                    NativeImage image = NativeImage.read(stream);
-                    textures[i] = new DynamicTexture(image);
-                    image.close();
-                    stream.close();
-                }
+                    try {
+                        DynamicTexture[] textures = new DynamicTexture[6];
 
-                return textures;
+                        for (int i = 0; i < textures.length; i++) {
+                            InputStream stream = Files
+                                    .newInputStream(path.resolve(String.format("panorama_%d.png", i)));
+                            NativeImage image = NativeImage.read(stream);
+                            textures[i] = new DynamicTexture(image);
+                            image.close();
+                            stream.close();
+                        }
+
+                        return textures;
+                    } catch (Exception e) {
+                        return null;
+                    }
+                });
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -169,7 +196,14 @@ public class PanoramaMod {
         return null;
     }
 
-    private void setRandomPanorama(MainMenuScreen screen) {
+    /**
+     * Set a random panorama on the given {@link MainMenuScreen}.
+     *
+     * @param screen The screen to set the random panorama to, if null only the resources will be set and not the renderer itself
+     */
+    private void setRandomPanorama(@Nullable MainMenuScreen screen) {
+
+        //If custom panoramas are disabled make sure the vanilla resources are set
         if (!Config.useCustomPanorama) {
             MainMenuScreen.PANORAMA_RESOURCES = new RenderSkyboxCube(
                     new ResourceLocation("textures/gui/title/background/panorama"));
