@@ -4,11 +4,13 @@ import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.renderer.RenderSkybox;
+import net.minecraft.client.renderer.RenderSkyboxCube;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.resources.SimpleResource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -16,8 +18,12 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -28,13 +34,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Random;
 
+import static com.suppergerrie2.panorama.Config.panoramaSaveFolder;
+
 @Mod(PanoramaMod.MOD_ID)
 public class PanoramaMod {
     public static final String MOD_ID = "spanorama";
     public static final KeyBinding createPanoramaKey = new KeyBinding(MOD_ID + ".key.createPanorama", GLFW.GLFW_KEY_H,
                                                                       "key.categories." + MOD_ID);
     private static final Logger LOGGER = LogManager.getLogger();
-    public static Path panormaSaveFolder;
 
     static {
         ClientRegistry.registerKeyBinding(createPanoramaKey);
@@ -54,13 +61,18 @@ public class PanoramaMod {
     int stage = 0;
 
     public PanoramaMod() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
+        Config.loadConfig(Config.CLIENT_SPEC,
+                          FMLPaths.CONFIGDIR.get().resolve(String.format("%s-client.toml", MOD_ID)));
+
         MinecraftForge.EVENT_BUS.addListener(this::renderEvent);
         MinecraftForge.EVENT_BUS.addListener(this::cameraSetupEvent);
         MinecraftForge.EVENT_BUS.addListener(this::fovModifier);
         MinecraftForge.EVENT_BUS.addListener(this::inputEvent);
         MinecraftForge.EVENT_BUS.addListener(this::openMainMenu);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(Config::onModConfigEvent);
 
-        panormaSaveFolder = Minecraft.getInstance().gameDir.toPath().resolve("panoramas");
+        panoramaSaveFolder = Minecraft.getInstance().gameDir.toPath().resolve("panoramas");
     }
 
     private static void takeScreenshot(final int stage, final long time) {
@@ -72,7 +84,7 @@ public class PanoramaMod {
         SimpleResource.RESOURCE_IO_EXECUTOR.execute(() -> {
             NativeImage squareScreenshot = null;
             try {
-                Path panoramaFolder = panormaSaveFolder.resolve(
+                Path panoramaFolder = panoramaSaveFolder.resolve(
                         String.format("%s", time));
 
                 if (!panoramaFolder.toFile().exists() || !panoramaFolder.toFile().isDirectory()) {
@@ -117,14 +129,14 @@ public class PanoramaMod {
     static DynamicTexture[] getRandomPanorama() {
         Random random = new Random();
         try {
-            if (!panormaSaveFolder.toFile().exists()) {
-                if (!panormaSaveFolder.toFile().mkdirs()) {
-                    LOGGER.error("Failed to create panorama save folder: {}", panormaSaveFolder.toAbsolutePath());
+            if (!panoramaSaveFolder.toFile().exists()) {
+                if (!panoramaSaveFolder.toFile().mkdirs()) {
+                    LOGGER.error("Failed to create panorama save folder: {}", panoramaSaveFolder.toAbsolutePath());
                     return null;
                 }
             }
 
-            Path[] paths = Files.list(panormaSaveFolder).filter(path -> {
+            Path[] paths = Files.list(panoramaSaveFolder).filter(path -> {
                 for (int i = 0; i < 6; i++) {
                     if (!path.resolve(String.format("panorama_%d.png", i)).toFile().exists()) {
                         return false;
@@ -144,6 +156,7 @@ public class PanoramaMod {
                     InputStream stream = Files.newInputStream(path.resolve(String.format("panorama_%d.png", i)));
                     NativeImage image = NativeImage.read(stream);
                     textures[i] = new DynamicTexture(image);
+                    image.close();
                     stream.close();
                 }
 
@@ -157,6 +170,12 @@ public class PanoramaMod {
     }
 
     private void setRandomPanorama(MainMenuScreen screen) {
+        if (!Config.useCustomPanorama) {
+            MainMenuScreen.PANORAMA_RESOURCES = new RenderSkyboxCube(
+                    new ResourceLocation("textures/gui/title/background/panorama"));
+            return;
+        }
+
         DynamicTexture[] textures = getRandomPanorama();
         if (textures != null) {
             MainMenuScreen.PANORAMA_RESOURCES = new RenderDynamicSkyboxCube(getRandomPanorama());
