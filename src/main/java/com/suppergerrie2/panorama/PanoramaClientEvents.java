@@ -5,13 +5,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.renderer.RenderSkybox;
 import net.minecraft.client.renderer.RenderSkyboxCube;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.resources.SimpleResource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.InputEvent;
@@ -63,7 +63,7 @@ public class PanoramaClientEvents {
                 .createScreenshot(window.getFramebufferWidth(), window.getFramebufferHeight(),
                                   Minecraft.getInstance().getFramebuffer());
 
-        SimpleResource.RESOURCE_IO_EXECUTOR.execute(() -> {
+        Util.func_240992_g_().execute(() -> {
             NativeImage squareScreenshot = null;
             try {
                 Path panoramaFolder = panoramaSaveFolder.resolve(
