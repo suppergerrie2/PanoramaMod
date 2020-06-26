@@ -16,8 +16,10 @@ import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -42,6 +44,17 @@ public class PanoramaClientEvents {
 
     static {
         ClientRegistry.registerKeyBinding(createPanoramaKey);
+    }
+
+    public PanoramaClientEvents() {
+        MinecraftForge.EVENT_BUS.addListener(this::renderEvent);
+        MinecraftForge.EVENT_BUS.addListener(this::cameraSetupEvent);
+        MinecraftForge.EVENT_BUS.addListener(this::fovModifier);
+        MinecraftForge.EVENT_BUS.addListener(this::inputEvent);
+        MinecraftForge.EVENT_BUS.addListener(this::openMainMenu);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(Config::onModConfigEvent);
+
+        panoramaSaveFolder = Minecraft.getInstance().gameDir.toPath().resolve("panoramas");
     }
 
     boolean makePanorama = false;
