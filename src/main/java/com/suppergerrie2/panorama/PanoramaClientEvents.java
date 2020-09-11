@@ -76,7 +76,7 @@ public class PanoramaClientEvents {
                 .createScreenshot(window.getFramebufferWidth(), window.getFramebufferHeight(),
                                   Minecraft.getInstance().getFramebuffer());
 
-        Util.func_240992_g_().execute(() -> {
+        Util.getRenderingService().execute(() -> {
             NativeImage squareScreenshot = null;
             try {
                 Path panoramaFolder = panoramaSaveFolder.resolve(
