@@ -36,11 +36,14 @@ import static com.suppergerrie2.panorama.Config.panoramaSaveFolder;
 
 public class PanoramaClientEvents {
 
-    public static final KeyBinding createPanoramaKey = new KeyBinding(PanoramaMod.MOD_ID + ".key.createPanorama",
-                                                                      GLFW.GLFW_KEY_H,
-                                                                      "key.categories." + PanoramaMod.MOD_ID);
+    public static final KeyBinding createPanoramaKey = new KeyBinding(
+            PanoramaMod.MOD_ID + ".key.createPanorama",
+            GLFW.GLFW_KEY_H,
+            "key.categories." + PanoramaMod.MOD_ID);
     private static final Logger LOGGER = LogManager.getLogger();
     static HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
+
+    boolean showedWarningMessage = false;
 
     static {
         ClientRegistry.registerKeyBinding(createPanoramaKey);
@@ -74,7 +77,7 @@ public class PanoramaClientEvents {
         MainWindow window = Minecraft.getInstance().getMainWindow();
         final NativeImage screenshot = ScreenShotHelper
                 .createScreenshot(window.getFramebufferWidth(), window.getFramebufferHeight(),
-                                  Minecraft.getInstance().getFramebuffer());
+                        Minecraft.getInstance().getFramebuffer());
 
         Util.getRenderingService().execute(() -> {
             NativeImage squareScreenshot = null;
@@ -85,7 +88,8 @@ public class PanoramaClientEvents {
                 if (!panoramaFolder.toFile().exists() || !panoramaFolder.toFile().isDirectory()) {
                     if (!panoramaFolder.toFile().mkdirs()) {
                         throw new IOException(
-                                String.format("Failed to create folder %s", panoramaFolder.toAbsolutePath()));
+                                String.format("Failed to create folder %s",
+                                        panoramaFolder.toAbsolutePath()));
                     }
                 }
 
@@ -116,16 +120,17 @@ public class PanoramaClientEvents {
                 e.printStackTrace();
             } finally {
                 screenshot.close();
-                if (squareScreenshot != null) squareScreenshot.close();
+                if (squareScreenshot != null) {
+                    squareScreenshot.close();
+                }
             }
         });
     }
 
     /**
-     * Get a random panorama from the {@link Config#panoramaSaveFolder}.
-     * Panoramas are saved in the following format:
-     * {@link Config#panoramaSaveFolder}/{unix timestamp}/panorama_%d.png
-     * Where %d is a number between 0 and 5 (inclusive)
+     * Get a random panorama from the {@link Config#panoramaSaveFolder}. Panoramas are saved in the
+     * following format: {@link Config#panoramaSaveFolder}/{unix timestamp}/panorama_%d.png Where %d
+     * is a number between 0 and 5 (inclusive)
      * <p>
      * If no panorama is found null is returned
      *
@@ -139,7 +144,8 @@ public class PanoramaClientEvents {
             //Make sure the panorama save folder exists and create it if it doesnt
             if (!panoramaSaveFolder.toFile().exists()) {
                 if (!panoramaSaveFolder.toFile().mkdirs()) {
-                    LOGGER.error("Failed to create panorama save folder: {}", panoramaSaveFolder.toAbsolutePath());
+                    LOGGER.error("Failed to create panorama save folder: {}",
+                            panoramaSaveFolder.toAbsolutePath());
                     return null;
                 }
             }
@@ -169,7 +175,8 @@ public class PanoramaClientEvents {
 
                         for (int i = 0; i < textures.length; i++) {
                             InputStream stream = Files
-                                    .newInputStream(path.resolve(String.format("panorama_%d.png", i)));
+                                    .newInputStream(
+                                            path.resolve(String.format("panorama_%d.png", i)));
                             NativeImage image = NativeImage.read(stream);
                             textures[i] = new DynamicTexture(image);
                             image.close();
@@ -192,7 +199,8 @@ public class PanoramaClientEvents {
     /**
      * Set a random panorama on the given {@link MainMenuScreen}.
      *
-     * @param screen The screen to set the random panorama to, if null only the resources will be set and not the renderer itself
+     * @param screen The screen to set the random panorama to, if null only the resources will be
+     *               set and not the renderer itself
      */
     private void setRandomPanorama(@Nullable MainMenuScreen screen) {
 
@@ -201,12 +209,19 @@ public class PanoramaClientEvents {
         MainMenuScreen.PANORAMA_RESOURCES = textures != null ? new RenderDynamicSkyboxCube(
                 textures) : new RenderSkyboxCube(
                 new ResourceLocation("textures/gui/title/background/panorama"));
-        if (screen != null) screen.panorama = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
+        if (screen != null) {
+            screen.panorama = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
+        }
     }
 
     public void openMainMenu(GuiOpenEvent event) {
         if (event.getGui() instanceof MainMenuScreen) {
-            setRandomPanorama((MainMenuScreen) event.getGui());
+            if (!showedWarningMessage && !Config.disableFlashWarning) {
+                event.setGui(new ScreenFlashWarningScreen(event.getGui()));
+                showedWarningMessage = true;
+            } else {
+                setRandomPanorama((MainMenuScreen) event.getGui());
+            }
         }
     }
 
