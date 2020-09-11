@@ -16,12 +16,16 @@ public class Config {
 
     public static final ClientConfig CLIENT;
     public static final ForgeConfigSpec CLIENT_SPEC;
-    private static final Logger LOGGER = LogManager.getLogger(PanoramaMod.MOD_ID + " Mod Event Subscriber");
+    private static final Logger LOGGER = LogManager
+            .getLogger(PanoramaMod.MOD_ID + " Mod Event Subscriber");
+
     public static Path panoramaSaveFolder = new File("./panoramas/").toPath();
     public static boolean useCustomPanorama = true;
+    public static boolean disableFlashWarning = false;
 
     static {
-        final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ClientConfig::new);
+        final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder()
+                .configure(ClientConfig::new);
         CLIENT_SPEC = specPair.getRight();
         CLIENT = specPair.getLeft();
     }
@@ -39,15 +43,16 @@ public class Config {
     private static void bakeClient(ModConfig config) {
         panoramaSaveFolder = new File(CLIENT.savePath.get()).toPath();
         useCustomPanorama = CLIENT.useCustomPanoramas.get();
+        disableFlashWarning = CLIENT.disableFlashWarning.get();
     }
 
     public static void loadConfig(ForgeConfigSpec spec, Path path) {
 
         final CommentedFileConfig configData = CommentedFileConfig.builder(path)
-                                                                  .sync()
-                                                                  .autosave()
-                                                                  .writingMode(WritingMode.REPLACE)
-                                                                  .build();
+                .sync()
+                .autosave()
+                .writingMode(WritingMode.REPLACE)
+                .build();
 
         configData.load();
         spec.setConfig(configData);
@@ -57,6 +62,7 @@ public class Config {
 
         public final ForgeConfigSpec.ConfigValue<String> savePath;
         public final ForgeConfigSpec.BooleanValue useCustomPanoramas;
+        public final ForgeConfigSpec.BooleanValue disableFlashWarning;
 
         ClientConfig(ForgeConfigSpec.Builder builder) {
             builder.push("Save locations");
@@ -69,6 +75,10 @@ public class Config {
             useCustomPanoramas = builder
                     .comment("Whether to use custom panoramas on the main menu")
                     .define("useCustomPanoramas", true);
+
+            disableFlashWarning = builder
+                    .comment("Whether to show the flash warning screen on launch. ")
+                    .define("disableFlashWarning", false);
 
             builder.pop();
         }
