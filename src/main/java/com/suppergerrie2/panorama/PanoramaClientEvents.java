@@ -21,6 +21,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -67,6 +68,7 @@ public class PanoramaClientEvents {
     }
 
     boolean makePanorama = false;
+    Vector3d panoramaPosition = Vector3d.ZERO;
     long startTime = System.currentTimeMillis();
     Vector3f[] stages = new Vector3f[]{
             new Vector3f(0, 0, 0),
@@ -282,6 +284,8 @@ public class PanoramaClientEvents {
             cameraSetup.setYaw(rotation.getX());
             cameraSetup.setPitch(rotation.getY());
             cameraSetup.setRoll(rotation.getZ());
+
+            cameraSetup.getInfo().setPosition(panoramaPosition);
         }
     }
 
@@ -300,6 +304,15 @@ public class PanoramaClientEvents {
             makePanorama = true;
             stage = 0;
             startTime = System.currentTimeMillis();
+
+            if (Minecraft.getInstance().getRenderViewEntity() != null) {
+                panoramaPosition = Minecraft.getInstance().getRenderViewEntity().getPositionVec();
+            } else {
+                panoramaPosition =
+                        Minecraft.getInstance().player != null ?
+                                Minecraft.getInstance().player.getPositionVec() :
+                                Vector3d.ZERO;
+            }
             LOGGER.info("Pressed create panorama key");
         }
     }
