@@ -1,5 +1,15 @@
 package com.suppergerrie2.panorama;
 
+import static com.suppergerrie2.panorama.Config.panoramaSaveFolder;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Random;
+import javax.annotation.Nullable;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
@@ -12,6 +22,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ScreenShotHelper;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.InputEvent;
@@ -23,16 +39,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Random;
-
-import static com.suppergerrie2.panorama.Config.panoramaSaveFolder;
 
 public class PanoramaClientEvents {
 
@@ -73,7 +79,7 @@ public class PanoramaClientEvents {
     int stage = 0;
 
 
-    private static void takeScreenshot(final int stage, final long time) {
+    private static void takeScreenshot(final int stage, final long time, boolean sendMessage) {
         MainWindow window = Minecraft.getInstance().getMainWindow();
         final NativeImage screenshot = ScreenShotHelper
                 .createScreenshot(window.getFramebufferWidth(), window.getFramebufferHeight(),
@@ -115,9 +121,40 @@ public class PanoramaClientEvents {
                 LOGGER.info("Writing to {}", path.toAbsolutePath());
                 squareScreenshot.write(path);
 
+                if (sendMessage) {
+                    File target = path.getParent().toFile();
+
+                    ITextComponent textComponent = (new StringTextComponent(
+                            target.getName()))
+                            .mergeStyle(TextFormatting.UNDERLINE)
+                            .modifyStyle((p_238335_1_) ->
+                                    p_238335_1_.setClickEvent(
+                                            new ClickEvent(Action.OPEN_FILE,
+                                                    target.getAbsolutePath())));
+
+                    Minecraft.getInstance().execute(() ->
+                            Minecraft.getInstance()
+                                    .ingameGUI
+                                    .getChatGUI()
+                                    .printChatMessage(
+                                            new TranslationTextComponent(
+                                                    "spanorama.panorama.success",
+                                                    textComponent
+                                            )));
+                }
+
             } catch (Exception e) {
                 LOGGER.error("Failed to save screenshot!");
                 e.printStackTrace();
+
+                Minecraft.getInstance().execute(() ->
+                        Minecraft.getInstance()
+                                .ingameGUI
+                                .getChatGUI()
+                                .printChatMessage(
+                                        new TranslationTextComponent(
+                                                "spanorama.panorama.failed"
+                                        )));
             } finally {
                 screenshot.close();
                 if (squareScreenshot != null) {
@@ -228,11 +265,12 @@ public class PanoramaClientEvents {
     @SubscribeEvent
     void renderEvent(RenderWorldLastEvent event) {
         if (Minecraft.getInstance().world != null && makePanorama) {
-            takeScreenshot(stage, startTime);
+            takeScreenshot(stage, startTime, stage == (stages.length - 2));
 
             stage++;
 
             makePanorama = stage < stages.length;
+
             Minecraft.getInstance().gameSettings.hideGUI = makePanorama;
         }
     }
