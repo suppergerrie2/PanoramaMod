@@ -40,7 +40,7 @@ public class ScreenFlashWarningScreen extends Screen {
         int i = (this.bidiRenderer.func_241862_a() + 1) * 9;
 
         this.addButton(
-                new Button(this.width / 2 - 155, 100 + i, 150, 20, DialogTexts.field_240636_g_,
+                new Button(this.width / 2 - 155, 100 + i, 150, 20, DialogTexts.optionsEnabled(true),
                         (p_230165_1_) -> {
                             if (this.showAgainCheckbox.isChecked()) {
                                 Config.CLIENT.disableFlashWarning.set(true);
