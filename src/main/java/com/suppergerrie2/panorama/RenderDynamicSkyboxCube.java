@@ -25,13 +25,13 @@ public class RenderDynamicSkyboxCube extends RenderSkyboxCube {
     @Override
     public void render(Minecraft mc, float pitch, float yaw, float alpha) {
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        BufferBuilder bufferbuilder = tessellator.getBuilder();
         RenderSystem.matrixMode(5889);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
         RenderSystem.multMatrix(Matrix4f.perspective(85.0D,
-                                                     (float) mc.getMainWindow().getFramebufferWidth() / (float) mc
-                                                             .getMainWindow().getFramebufferHeight(), 0.05F, 10.0F));
+                                                     (float) mc.getWindow().getWidth() / (float) mc
+                                                             .getWindow().getHeight(), 0.05F, 10.0F));
         RenderSystem.matrixMode(5888);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
@@ -53,52 +53,52 @@ public class RenderDynamicSkyboxCube extends RenderSkyboxCube {
             RenderSystem.rotatef(yaw, 0.0F, 1.0F, 0.0F);
 
             for (int side = 0; side < 6; ++side) {
-                this.textures[side].bindTexture();
+                this.textures[side].bind();
                 bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
                 int l = Math.round(255.0F * alpha) / (pass + 1);
                 if (side == 0) {
-                    bufferbuilder.pos(-1.0D, -1.0D, 1.0D).color(255, 255, 255, l).tex(0.0F, 0.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, 1.0D, 1.0D).color(255, 255, 255, l).tex(0.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, 1.0D, 1.0D).color(255, 255, 255, l).tex(1.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, -1.0D, 1.0D).color(255, 255, 255, l).tex(1.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, -1.0D, 1.0D).color(255, 255, 255, l).uv(0.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, 1.0D, 1.0D).color(255, 255, 255, l).uv(0.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, 1.0D, 1.0D).color(255, 255, 255, l).uv(1.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, -1.0D, 1.0D).color(255, 255, 255, l).uv(1.0F, 0.0F).endVertex();
                 }
 
                 if (side == 1) {
-                    bufferbuilder.pos(1.0D, -1.0D, 1.0D).color(255, 255, 255, l).tex(0.0F, 0.0F).endVertex();
-                    bufferbuilder.pos(1.0D, 1.0D, 1.0D).color(255, 255, 255, l).tex(0.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, 1.0D, -1.0D).color(255, 255, 255, l).tex(1.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, -1.0D, -1.0D).color(255, 255, 255, l).tex(1.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, -1.0D, 1.0D).color(255, 255, 255, l).uv(0.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, 1.0D, 1.0D).color(255, 255, 255, l).uv(0.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, 1.0D, -1.0D).color(255, 255, 255, l).uv(1.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, -1.0D, -1.0D).color(255, 255, 255, l).uv(1.0F, 0.0F).endVertex();
                 }
 
                 if (side == 2) {
-                    bufferbuilder.pos(1.0D, -1.0D, -1.0D).color(255, 255, 255, l).tex(0.0F, 0.0F).endVertex();
-                    bufferbuilder.pos(1.0D, 1.0D, -1.0D).color(255, 255, 255, l).tex(0.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, 1.0D, -1.0D).color(255, 255, 255, l).tex(1.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, -1.0D, -1.0D).color(255, 255, 255, l).tex(1.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, -1.0D, -1.0D).color(255, 255, 255, l).uv(0.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, 1.0D, -1.0D).color(255, 255, 255, l).uv(0.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, 1.0D, -1.0D).color(255, 255, 255, l).uv(1.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, -1.0D, -1.0D).color(255, 255, 255, l).uv(1.0F, 0.0F).endVertex();
                 }
 
                 if (side == 3) {
-                    bufferbuilder.pos(-1.0D, -1.0D, -1.0D).color(255, 255, 255, l).tex(0.0F, 0.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, 1.0D, -1.0D).color(255, 255, 255, l).tex(0.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, 1.0D, 1.0D).color(255, 255, 255, l).tex(1.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, -1.0D, 1.0D).color(255, 255, 255, l).tex(1.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, -1.0D, -1.0D).color(255, 255, 255, l).uv(0.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, 1.0D, -1.0D).color(255, 255, 255, l).uv(0.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, 1.0D, 1.0D).color(255, 255, 255, l).uv(1.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, -1.0D, 1.0D).color(255, 255, 255, l).uv(1.0F, 0.0F).endVertex();
                 }
 
                 if (side == 4) {
-                    bufferbuilder.pos(-1.0D, -1.0D, -1.0D).color(255, 255, 255, l).tex(0.0F, 0.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, -1.0D, 1.0D).color(255, 255, 255, l).tex(0.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, -1.0D, 1.0D).color(255, 255, 255, l).tex(1.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, -1.0D, -1.0D).color(255, 255, 255, l).tex(1.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, -1.0D, -1.0D).color(255, 255, 255, l).uv(0.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, -1.0D, 1.0D).color(255, 255, 255, l).uv(0.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, -1.0D, 1.0D).color(255, 255, 255, l).uv(1.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, -1.0D, -1.0D).color(255, 255, 255, l).uv(1.0F, 0.0F).endVertex();
                 }
 
                 if (side == 5) {
-                    bufferbuilder.pos(-1.0D, 1.0D, 1.0D).color(255, 255, 255, l).tex(0.0F, 0.0F).endVertex();
-                    bufferbuilder.pos(-1.0D, 1.0D, -1.0D).color(255, 255, 255, l).tex(0.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, 1.0D, -1.0D).color(255, 255, 255, l).tex(1.0F, 1.0F).endVertex();
-                    bufferbuilder.pos(1.0D, 1.0D, 1.0D).color(255, 255, 255, l).tex(1.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, 1.0D, 1.0D).color(255, 255, 255, l).uv(0.0F, 0.0F).endVertex();
+                    bufferbuilder.vertex(-1.0D, 1.0D, -1.0D).color(255, 255, 255, l).uv(0.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, 1.0D, -1.0D).color(255, 255, 255, l).uv(1.0F, 1.0F).endVertex();
+                    bufferbuilder.vertex(1.0D, 1.0D, 1.0D).color(255, 255, 255, l).uv(1.0F, 0.0F).endVertex();
                 }
 
-                tessellator.draw();
+                tessellator.end();
             }
 
             RenderSystem.popMatrix();

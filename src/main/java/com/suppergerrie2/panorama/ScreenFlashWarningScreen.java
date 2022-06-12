@@ -16,17 +16,17 @@ public class ScreenFlashWarningScreen extends Screen {
 
     private final Screen nextScreen;
     private static final ITextComponent MESSAGE_HEADER = new TranslationTextComponent(
-            PanoramaMod.MOD_ID + ".screenflash.header").mergeStyle(TextFormatting.BOLD);
+            PanoramaMod.MOD_ID + ".screenflash.header").withStyle(TextFormatting.BOLD);
     private static final ITextComponent MESSAGE = new TranslationTextComponent(
             PanoramaMod.MOD_ID + ".screenflash.message");
     private static final ITextComponent CHECK = new TranslationTextComponent(
             PanoramaMod.MOD_ID + ".screenflash.check");
     private CheckboxButton showAgainCheckbox;
 
-    private IBidiRenderer bidiRenderer = IBidiRenderer.field_243257_a;
+    private IBidiRenderer bidiRenderer = IBidiRenderer.EMPTY;
 
     protected ScreenFlashWarningScreen(Screen nextScreen) {
-        super(NarratorChatListener.EMPTY);
+        super(NarratorChatListener.NO_TITLE);
         this.nextScreen = nextScreen;
     }
 
@@ -35,27 +35,27 @@ public class ScreenFlashWarningScreen extends Screen {
         super.init();
 
         this.bidiRenderer = IBidiRenderer
-                .func_243258_a(this.font, MESSAGE, this.width - 50);
+                .create(this.font, MESSAGE, this.width - 50);
 
-        int i = (this.bidiRenderer.func_241862_a() + 1) * 9;
+        int i = (this.bidiRenderer.getLineCount() + 1) * 9;
 
         this.addButton(
                 new Button(this.width / 2 - 155, 100 + i, 150, 20, DialogTexts.GUI_PROCEED,
                         (p_230165_1_) -> {
-                            if (this.showAgainCheckbox.isChecked()) {
+                            if (this.showAgainCheckbox.selected()) {
                                 Config.CLIENT.disableFlashWarning.set(true);
                                 Config.CLIENT_SPEC.save();
                             }
 
                             if (this.minecraft != null) {
-                                this.minecraft.displayGuiScreen(this.nextScreen);
+                                this.minecraft.setScreen(this.nextScreen);
                             }
                         }));
 
         this.addButton(new Button(this.width / 2 - 155 + 160, 100 + i, 150, 20,
                 new TranslationTextComponent("menu.quit"), (p_230164_1_) -> {
             if (this.minecraft != null) {
-                this.minecraft.shutdown();
+                this.minecraft.stop();
             }
         }));
 
@@ -70,7 +70,7 @@ public class ScreenFlashWarningScreen extends Screen {
         this.renderDirtBackground(0);
 
         drawCenteredString(matrixStack, this.font, MESSAGE_HEADER, this.width / 2, 30, 0xffffff);
-        this.bidiRenderer.func_241863_a(matrixStack, this.width / 2, 70);
+        this.bidiRenderer.renderCentered(matrixStack, this.width / 2, 70);
 
         super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
