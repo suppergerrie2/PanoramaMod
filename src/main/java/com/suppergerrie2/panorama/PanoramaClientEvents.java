@@ -236,9 +236,22 @@ public class PanoramaClientEvents {
 
         //If custom panoramas are disabled make sure the vanilla resources are set
         DynamicTexture[] textures = Config.useCustomPanorama ? getRandomPanorama() : null;
-        TitleScreen.CUBE_MAP = textures != null ? new RenderDynamicSkyboxCube(
-                textures) : new CubeMap(
-                new ResourceLocation("textures/gui/title/background/panorama"));
+
+        ResourceLocation base;
+        if(textures == null) {
+            base = new ResourceLocation("minecraft", "textures/gui/title/background/panorama");
+        } else {
+            base = new ResourceLocation(PanoramaMod.MOD_ID, "textures/gui/title/background/panorama");
+
+            for (int i = 0; i < 6; i++) {
+                Minecraft.getInstance()
+                         .getTextureManager()
+                         .register(new ResourceLocation(base.getNamespace(), base.getPath() + "_" + i + ".png"),
+                                   textures[i]);
+            }
+        }
+
+        TitleScreen.CUBE_MAP = new CubeMap(base);
         if (screen != null) {
             screen.panorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
         }
