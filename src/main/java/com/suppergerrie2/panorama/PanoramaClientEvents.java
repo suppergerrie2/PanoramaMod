@@ -22,6 +22,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
+import oshi.util.tuples.Pair;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -164,10 +165,10 @@ public class PanoramaClientEvents {
      * <p>
      * If no panorama is found null is returned
      *
-     * @return A {@link DynamicTexture} array with size 6, or null if no panorama is found
+     * @return A {@link Pair} with a {@link DynamicTexture[]} of size 6 and the name of the panorama, or null if no panorama is found
      */
     @Nullable
-    static DynamicTexture[] getRandomPanorama() {
+    static Pair<DynamicTexture[], String> getRandomPanorama() {
         Random random = new Random();
 
         try {
@@ -198,7 +199,7 @@ public class PanoramaClientEvents {
                 Path theChosenOne = paths[random.nextInt(paths.length)];
 
                 //Check if the images are loaded already, and if not load them
-                return skyboxTextureCache.computeIfAbsent(theChosenOne, (path) -> {
+                return new Pair<>(skyboxTextureCache.computeIfAbsent(theChosenOne, (path) -> {
 
                     try {
                         DynamicTexture[] textures = new DynamicTexture[6];
@@ -217,7 +218,7 @@ public class PanoramaClientEvents {
                     } catch (Exception e) {
                         return null;
                     }
-                });
+                }), theChosenOne.getFileName().toString());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -235,19 +236,19 @@ public class PanoramaClientEvents {
     private void setRandomPanorama(@Nullable TitleScreen screen) {
 
         //If custom panoramas are disabled make sure the vanilla resources are set
-        DynamicTexture[] textures = Config.useCustomPanorama ? getRandomPanorama() : null;
+        Pair<DynamicTexture[], String> textures = Config.useCustomPanorama ? getRandomPanorama() : null;
 
         ResourceLocation base;
         if(textures == null) {
             base = new ResourceLocation("minecraft", "textures/gui/title/background/panorama");
         } else {
-            base = new ResourceLocation(PanoramaMod.MOD_ID, "textures/gui/title/background/panorama");
+            base = new ResourceLocation(PanoramaMod.MOD_ID, "textures/gui/title/background/panorama/"+textures.getB());
 
             for (int i = 0; i < 6; i++) {
                 Minecraft.getInstance()
                          .getTextureManager()
                          .register(new ResourceLocation(base.getNamespace(), base.getPath() + "_" + i + ".png"),
-                                   textures[i]);
+                                   textures.getA()[i]);
             }
         }
 
