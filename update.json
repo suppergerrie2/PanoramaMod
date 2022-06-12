@@ -17,6 +17,9 @@
     "1.4.2": "- Update to 1.16.5",
     "1.4.3": "- Fixed wrong text on flickering screen warning.\n- Fix panorama location being in the players feet.\n- Add zh_cn language (Thanks to @Wulian233)."
   },
+  "1.19": {
+    "1.4.4": "- Update to 1.19"
+  },
   "promos": {
     "1.14.4-latest": "1.1",
     "1.14.4-recommended": "1.1",
@@ -27,6 +30,8 @@
     "1.16.3-latest": "1.4.1",
     "1.16.3-recommended": "1.4.1",
     "1.16.5-latest": "1.4.3",
-    "1.16.5-recommended": "1.4.3"
+    "1.16.5-recommended": "1.4.3",
+    "1.19-latest": "1.4.4",
+    "1.19-recommended": "1.4.4"
   }
 }

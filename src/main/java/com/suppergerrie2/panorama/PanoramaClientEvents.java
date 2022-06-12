@@ -40,7 +40,7 @@ public class PanoramaClientEvents {
             GLFW.GLFW_KEY_H,
             "key.categories." + PanoramaMod.MOD_ID);
     private static final Logger     LOGGER            = LogManager.getLogger();
-    static HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
+    static final HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
 
     boolean showedWarningMessage = false;
 
@@ -62,7 +62,7 @@ public class PanoramaClientEvents {
     boolean makePanorama     = false;
     Vec3    panoramaPosition = Vec3.ZERO;
     long    startTime        = System.currentTimeMillis();
-    Vector3f[] stages = new Vector3f[]{
+    final Vector3f[] stages = new Vector3f[]{
             new Vector3f(0, 0, 0),
             new Vector3f(90, 0, 0),
             new Vector3f(180, 0, 0),

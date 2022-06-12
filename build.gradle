@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.4.3'
+version = '1.4.4'
 group = 'com.suppergerrie2.panorama' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'spanorama'
 
