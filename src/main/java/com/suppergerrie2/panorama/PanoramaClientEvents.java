@@ -306,11 +306,11 @@ public class PanoramaClientEvents {
             startTime = System.currentTimeMillis();
 
             if (Minecraft.getInstance().getRenderViewEntity() != null) {
-                panoramaPosition = Minecraft.getInstance().getRenderViewEntity().getPositionVec();
+                panoramaPosition = Minecraft.getInstance().getRenderViewEntity().getEyePosition(0);
             } else {
                 panoramaPosition =
                         Minecraft.getInstance().player != null ?
-                                Minecraft.getInstance().player.getPositionVec() :
+                                Minecraft.getInstance().player.getEyePosition(0) :
                                 Vector3d.ZERO;
             }
             LOGGER.info("Pressed create panorama key");
