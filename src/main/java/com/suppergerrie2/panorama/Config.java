@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,23 +32,22 @@ public class Config {
     }
 
     @SubscribeEvent
-    public static void onModConfigEvent(final ModConfig.ModConfigEvent event) {
+    public static void onModConfigEvent(final ModConfigEvent event) {
         final ModConfig config = event.getConfig();
         // Rebake the configs when they change
         if (config.getSpec() == CLIENT_SPEC) {
-            bakeClient(config);
+            bakeClient();
             LOGGER.debug("Baked client config");
         }
     }
 
-    private static void bakeClient(ModConfig config) {
+    private static void bakeClient() {
         panoramaSaveFolder = new File(CLIENT.savePath.get()).toPath();
         useCustomPanorama = CLIENT.useCustomPanoramas.get();
         disableFlashWarning = CLIENT.disableFlashWarning.get();
     }
 
     public static void loadConfig(ForgeConfigSpec spec, Path path) {
-
         final CommentedFileConfig configData = CommentedFileConfig.builder(path)
                 .sync()
                 .autosave()

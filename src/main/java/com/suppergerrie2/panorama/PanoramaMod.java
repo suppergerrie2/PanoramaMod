@@ -18,7 +18,6 @@ public class PanoramaMod {
                           FMLPaths.CONFIGDIR.get().resolve(String.format("%s-client.toml", MOD_ID)));
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> PanoramaClientEvents::new);
-
     }
 
 }
