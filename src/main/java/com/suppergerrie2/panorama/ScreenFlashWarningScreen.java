@@ -1,32 +1,30 @@
 package com.suppergerrie2.panorama;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import javax.annotation.Nonnull;
-import net.minecraft.client.gui.DialogTexts;
-import net.minecraft.client.gui.IBidiRenderer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.button.CheckboxButton;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+
+import javax.annotation.Nonnull;
 
 public class ScreenFlashWarningScreen extends Screen {
 
-    private final Screen nextScreen;
-    private static final ITextComponent MESSAGE_HEADER = new TranslationTextComponent(
-            PanoramaMod.MOD_ID + ".screenflash.header").mergeStyle(TextFormatting.BOLD);
-    private static final ITextComponent MESSAGE = new TranslationTextComponent(
+    private final        Screen         nextScreen;
+    private static final Component      MESSAGE_HEADER = Component.translatable(
+            PanoramaMod.MOD_ID + ".screenflash.header").withStyle(ChatFormatting.BOLD);
+    private static final Component MESSAGE        = Component.translatable(
             PanoramaMod.MOD_ID + ".screenflash.message");
-    private static final ITextComponent CHECK = new TranslationTextComponent(
+    private static final Component CHECK = Component.translatable(
             PanoramaMod.MOD_ID + ".screenflash.check");
-    private CheckboxButton showAgainCheckbox;
+    private              Checkbox  showAgainCheckbox;
 
-    private IBidiRenderer bidiRenderer = IBidiRenderer.field_243257_a;
+    private MultiLineLabel bidiRenderer = MultiLineLabel.EMPTY;
 
     protected ScreenFlashWarningScreen(Screen nextScreen) {
-        super(NarratorChatListener.EMPTY);
+        super(NarratorChatListener.NO_TITLE);
         this.nextScreen = nextScreen;
     }
 
@@ -34,43 +32,43 @@ public class ScreenFlashWarningScreen extends Screen {
     protected void init() {
         super.init();
 
-        this.bidiRenderer = IBidiRenderer
-                .func_243258_a(this.font, MESSAGE, this.width - 50);
+        this.bidiRenderer = MultiLineLabel
+                .create(this.font, MESSAGE, this.width - 50);
 
-        int i = (this.bidiRenderer.func_241862_a() + 1) * 9;
+        int i = (this.bidiRenderer.getLineCount() + 1) * 9;
 
-        this.addButton(
-                new Button(this.width / 2 - 155, 100 + i, 150, 20, DialogTexts.optionsEnabled(true),
-                        (p_230165_1_) -> {
-                            if (this.showAgainCheckbox.isChecked()) {
+        this.addRenderableWidget(
+                new Button(this.width / 2 - 155, 100 + i, 150, 20, CommonComponents.GUI_PROCEED,
+                           (p_230165_1_) -> {
+                            if (this.showAgainCheckbox.selected()) {
                                 Config.CLIENT.disableFlashWarning.set(true);
                                 Config.CLIENT_SPEC.save();
                             }
 
                             if (this.minecraft != null) {
-                                this.minecraft.displayGuiScreen(this.nextScreen);
+                                this.minecraft.setScreen(this.nextScreen);
                             }
                         }));
 
-        this.addButton(new Button(this.width / 2 - 155 + 160, 100 + i, 150, 20,
-                new TranslationTextComponent("menu.quit"), (p_230164_1_) -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 155 + 160, 100 + i, 150, 20,
+                Component.translatable("menu.quit"), (p_230164_1_) -> {
             if (this.minecraft != null) {
-                this.minecraft.shutdown();
+                this.minecraft.stop();
             }
         }));
 
-        this.showAgainCheckbox = new CheckboxButton(this.width / 2 - 155 + 80, 76 + i, 150, 20,
+        this.showAgainCheckbox = new Checkbox(this.width / 2 - 155 + 80, 76 + i, 150, 20,
                 CHECK, false);
-        this.addButton(this.showAgainCheckbox);
+        this.addRenderableWidget(this.showAgainCheckbox);
     }
 
     @Override
-    public void render(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY,
-            float partialTicks) {
+    public void render(@Nonnull PoseStack matrixStack, int mouseX, int mouseY,
+                       float partialTicks) {
         this.renderDirtBackground(0);
 
         drawCenteredString(matrixStack, this.font, MESSAGE_HEADER, this.width / 2, 30, 0xffffff);
-        this.bidiRenderer.func_241863_a(matrixStack, this.width / 2, 70);
+        this.bidiRenderer.renderCentered(matrixStack, this.width / 2, 70);
 
         super.render(matrixStack, mouseX, mouseY, partialTicks);
     }

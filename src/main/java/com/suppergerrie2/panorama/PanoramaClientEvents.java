@@ -1,54 +1,46 @@
 package com.suppergerrie2.panorama;
 
-import static com.suppergerrie2.panorama.Config.panoramaSaveFolder;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Random;
-import javax.annotation.Nullable;
-import net.minecraft.client.MainWindow;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.renderer.RenderSkybox;
-import net.minecraft.client.renderer.RenderSkyboxCube;
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.math.Vector3f;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.client.*;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.CubeMap;
+import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ScreenShotHelper;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.ClickEvent.Action;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
+import oshi.util.tuples.Pair;
+
+import javax.annotation.Nullable;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Random;
+
+import static com.suppergerrie2.panorama.Config.panoramaSaveFolder;
 
 public class PanoramaClientEvents {
 
-    public static final KeyBinding createPanoramaKey = new KeyBinding(
+    public static final KeyMapping createPanoramaKey = new KeyMapping(
             PanoramaMod.MOD_ID + ".key.createPanorama",
             GLFW.GLFW_KEY_H,
             "key.categories." + PanoramaMod.MOD_ID);
-    private static final Logger LOGGER = LogManager.getLogger();
-    static HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
+    private static final Logger     LOGGER            = LogManager.getLogger();
+    static final HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
 
     boolean showedWarningMessage = false;
 
@@ -64,13 +56,13 @@ public class PanoramaClientEvents {
         MinecraftForge.EVENT_BUS.addListener(this::openMainMenu);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(Config::onModConfigEvent);
 
-        panoramaSaveFolder = Minecraft.getInstance().gameDir.toPath().resolve("panoramas");
+        panoramaSaveFolder = Minecraft.getInstance().gameDirectory.toPath().resolve("panoramas");
     }
 
-    boolean makePanorama = false;
-    Vector3d panoramaPosition = Vector3d.ZERO;
-    long startTime = System.currentTimeMillis();
-    Vector3f[] stages = new Vector3f[]{
+    boolean makePanorama     = false;
+    Vec3    panoramaPosition = Vec3.ZERO;
+    long    startTime        = System.currentTimeMillis();
+    final Vector3f[] stages = new Vector3f[]{
             new Vector3f(0, 0, 0),
             new Vector3f(90, 0, 0),
             new Vector3f(180, 0, 0),
@@ -82,12 +74,12 @@ public class PanoramaClientEvents {
 
 
     private static void takeScreenshot(final int stage, final long time, boolean sendMessage) {
-        MainWindow window = Minecraft.getInstance().getMainWindow();
-        final NativeImage screenshot = ScreenShotHelper
-                .createScreenshot(window.getFramebufferWidth(), window.getFramebufferHeight(),
-                        Minecraft.getInstance().getFramebuffer());
+        Window window = Minecraft.getInstance().getWindow();
+        final NativeImage screenshot = Screenshot
+                .takeScreenshot(/*window.getWidth(), window.getHeight(),*/
+                        Minecraft.getInstance().getMainRenderTarget());
 
-        Util.getRenderingService().execute(() -> {
+        Util.ioPool().execute(() -> {
             NativeImage squareScreenshot = null;
             try {
                 Path panoramaFolder = panoramaSaveFolder.resolve(
@@ -121,25 +113,25 @@ public class PanoramaClientEvents {
                 Path path = panoramaFolder.resolve(String.format("panorama_%d.png", stage));
 
                 LOGGER.info("Writing to {}", path.toAbsolutePath());
-                squareScreenshot.write(path);
+                squareScreenshot.writeToFile(path);
 
                 if (sendMessage) {
                     File target = path.getParent().toFile();
 
-                    ITextComponent textComponent = (new StringTextComponent(
+                    Component textComponent = (Component.literal(
                             target.getName()))
-                            .mergeStyle(TextFormatting.UNDERLINE)
-                            .modifyStyle((p_238335_1_) ->
-                                    p_238335_1_.setClickEvent(
-                                            new ClickEvent(Action.OPEN_FILE,
-                                                    target.getAbsolutePath())));
+                            .withStyle(ChatFormatting.UNDERLINE)
+                            .withStyle((p_238335_1_) ->
+                                    p_238335_1_.withClickEvent(
+                                            new ClickEvent(ClickEvent.Action.OPEN_FILE,
+                                                           target.getAbsolutePath())));
 
                     Minecraft.getInstance().execute(() ->
                             Minecraft.getInstance()
-                                    .ingameGUI
-                                    .getChatGUI()
-                                    .printChatMessage(
-                                            new TranslationTextComponent(
+                                    .gui
+                                    .getChat()
+                                    .addMessage(
+                                            Component.translatable(
                                                     "spanorama.panorama.success",
                                                     textComponent
                                             )));
@@ -151,10 +143,10 @@ public class PanoramaClientEvents {
 
                 Minecraft.getInstance().execute(() ->
                         Minecraft.getInstance()
-                                .ingameGUI
-                                .getChatGUI()
-                                .printChatMessage(
-                                        new TranslationTextComponent(
+                                .gui
+                                .getChat()
+                                .addMessage(
+                                        Component.translatable(
                                                 "spanorama.panorama.failed"
                                         )));
             } finally {
@@ -173,10 +165,10 @@ public class PanoramaClientEvents {
      * <p>
      * If no panorama is found null is returned
      *
-     * @return A {@link DynamicTexture} array with size 6, or null if no panorama is found
+     * @return A {@link Pair} with a {@link DynamicTexture[]} of size 6 and the name of the panorama, or null if no panorama is found
      */
     @Nullable
-    static DynamicTexture[] getRandomPanorama() {
+    static Pair<DynamicTexture[], String> getRandomPanorama() {
         Random random = new Random();
 
         try {
@@ -207,7 +199,7 @@ public class PanoramaClientEvents {
                 Path theChosenOne = paths[random.nextInt(paths.length)];
 
                 //Check if the images are loaded already, and if not load them
-                return skyboxTextureCache.computeIfAbsent(theChosenOne, (path) -> {
+                return new Pair<>(skyboxTextureCache.computeIfAbsent(theChosenOne, (path) -> {
 
                     try {
                         DynamicTexture[] textures = new DynamicTexture[6];
@@ -226,7 +218,7 @@ public class PanoramaClientEvents {
                     } catch (Exception e) {
                         return null;
                     }
-                });
+                }), theChosenOne.getFileName().toString());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -236,44 +228,57 @@ public class PanoramaClientEvents {
     }
 
     /**
-     * Set a random panorama on the given {@link MainMenuScreen}.
+     * Set a random panorama on the given {@link TitleScreen}.
      *
      * @param screen The screen to set the random panorama to, if null only the resources will be
      *               set and not the renderer itself
      */
-    private void setRandomPanorama(@Nullable MainMenuScreen screen) {
+    private void setRandomPanorama(@Nullable TitleScreen screen) {
 
         //If custom panoramas are disabled make sure the vanilla resources are set
-        DynamicTexture[] textures = Config.useCustomPanorama ? getRandomPanorama() : null;
-        MainMenuScreen.PANORAMA_RESOURCES = textures != null ? new RenderDynamicSkyboxCube(
-                textures) : new RenderSkyboxCube(
-                new ResourceLocation("textures/gui/title/background/panorama"));
+        Pair<DynamicTexture[], String> textures = Config.useCustomPanorama ? getRandomPanorama() : null;
+
+        ResourceLocation base;
+        if(textures == null) {
+            base = new ResourceLocation("minecraft", "textures/gui/title/background/panorama");
+        } else {
+            base = new ResourceLocation(PanoramaMod.MOD_ID, "textures/gui/title/background/panorama/"+textures.getB());
+
+            for (int i = 0; i < 6; i++) {
+                Minecraft.getInstance()
+                         .getTextureManager()
+                         .register(new ResourceLocation(base.getNamespace(), base.getPath() + "_" + i + ".png"),
+                                   textures.getA()[i]);
+            }
+        }
+
+        TitleScreen.CUBE_MAP = new CubeMap(base);
         if (screen != null) {
-            screen.panorama = new RenderSkybox(MainMenuScreen.PANORAMA_RESOURCES);
+            screen.panorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
         }
     }
 
-    public void openMainMenu(GuiOpenEvent event) {
-        if (event.getGui() instanceof MainMenuScreen) {
+    public void openMainMenu(ScreenOpenEvent event) {
+        if (event.getScreen() instanceof TitleScreen titleScreen) {
             if (!showedWarningMessage && !Config.disableFlashWarning) {
-                event.setGui(new ScreenFlashWarningScreen(event.getGui()));
+                event.setScreen(new ScreenFlashWarningScreen(event.getScreen()));
                 showedWarningMessage = true;
             } else {
-                setRandomPanorama((MainMenuScreen) event.getGui());
+                setRandomPanorama(titleScreen);
             }
         }
     }
 
     @SubscribeEvent
-    void renderEvent(RenderWorldLastEvent event) {
-        if (Minecraft.getInstance().world != null && makePanorama) {
+    void renderEvent(RenderLevelLastEvent event) {
+        if (Minecraft.getInstance().level != null && makePanorama) {
             takeScreenshot(stage, startTime, stage == (stages.length - 2));
 
             stage++;
 
             makePanorama = stage < stages.length;
 
-            Minecraft.getInstance().gameSettings.hideGUI = makePanorama;
+            Minecraft.getInstance().options.hideGui = makePanorama;
         }
     }
 
@@ -281,37 +286,37 @@ public class PanoramaClientEvents {
     void cameraSetupEvent(EntityViewRenderEvent.CameraSetup cameraSetup) {
         if (makePanorama) {
             Vector3f rotation = stages[stage];
-            cameraSetup.setYaw(rotation.getX());
-            cameraSetup.setPitch(rotation.getY());
-            cameraSetup.setRoll(rotation.getZ());
+            cameraSetup.setYaw(rotation.x());
+            cameraSetup.setPitch(rotation.y());
+            cameraSetup.setRoll(rotation.z());
 
-            cameraSetup.getInfo().setPosition(panoramaPosition);
+            cameraSetup.getCamera().setPosition(panoramaPosition);
         }
     }
 
     @SubscribeEvent
-    void fovModifier(EntityViewRenderEvent.FOVModifier fovModifier) {
+    void fovModifier(EntityViewRenderEvent.FieldOfView fovEvent) {
         if (makePanorama) {
-            fovModifier.setFOV(90);
+            fovEvent.setFOV(90);
         }
     }
 
     @SubscribeEvent
     void inputEvent(InputEvent.KeyInputEvent event) {
-        if (createPanoramaKey.isPressed() && !makePanorama) {
-            Minecraft.getInstance().gameSettings.hideGUI = true;
+        if (createPanoramaKey.consumeClick() && !makePanorama) {
+            Minecraft.getInstance().options.hideGui = true;
 
             makePanorama = true;
             stage = 0;
             startTime = System.currentTimeMillis();
 
-            if (Minecraft.getInstance().getRenderViewEntity() != null) {
-                panoramaPosition = Minecraft.getInstance().getRenderViewEntity().getPositionVec();
+            if (Minecraft.getInstance().getCameraEntity() != null) {
+                panoramaPosition = Minecraft.getInstance().getCameraEntity().getEyePosition(0);
             } else {
                 panoramaPosition =
                         Minecraft.getInstance().player != null ?
-                                Minecraft.getInstance().player.getPositionVec() :
-                                Vector3d.ZERO;
+                                Minecraft.getInstance().player.getEyePosition(0) :
+                                Vec3.ZERO;
             }
             LOGGER.info("Pressed create panorama key");
         }
