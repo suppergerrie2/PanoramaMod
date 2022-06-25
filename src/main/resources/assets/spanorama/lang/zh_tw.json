@@ -1,0 +1,9 @@
+{
+  "spanorama.screenflash.header": "警告：荧幕快速閃爍",
+  "spanorama.screenflash.message": "警告：拍攝全景圖時荧幕會快速閃爍，這可能會給某些人帶來問題。",
+  "spanorama.screenflash.check": "不再在此螢幕顯示",
+  "spanorama.panorama.success": "已保存全景圖在%s",
+  "spanorama.panorama.failed": "保存全景圖失敗",
+  "key.categories.spanorama": "創建全景圖",
+  "spanorama.key.createPanorama": "創建全景圖"
+}
