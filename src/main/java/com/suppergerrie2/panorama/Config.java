@@ -65,20 +65,19 @@ public class Config {
         public final ForgeConfigSpec.IntValue     renderResolution;
 
         ClientConfig(ForgeConfigSpec.Builder builder) {
-            builder.push("Save locations");
+            builder.push("Save Settings");
             savePath = builder
                     .comment("Where to save the panoramas")
                     .define("panoramaSaveFolder", panoramaSaveFolder.toString());
+            renderResolution = builder
+                    .comment("The resolution of one image in the panorama. Increasing the resolution will lead to higher quality images but at the cost of performance and storage space")
+                    .defineInRange("renderResolution", 1920, 240, 8192);
             builder.pop();
             builder.push("Main menu");
 
             useCustomPanoramas = builder
                     .comment("Whether to use custom panoramas on the main menu")
                     .define("useCustomPanoramas", true);
-
-            renderResolution = builder
-                    .comment("The resolution of one image in the panorama. Increasing the resolution will lead to higher quality images but at the cost of performance and storage space")
-                    .defineInRange("renderResolution", 1920, 240, 8192);
 
             builder.pop();
         }
