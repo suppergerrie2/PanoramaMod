@@ -1,7 +1,4 @@
 {
-  "spanorama.screenflash.header": "Waarschuwing: Veel beweging en licht kan epilepsie aanvallen veroorzaken",
-  "spanorama.screenflash.message": "Waarschuwing: Wanneer een panorama gemaakt wordt gaat het scherm veel knipperen. Dit kan een probleem zijn voor sommigen.",
-  "spanorama.screenflash.check": "Laat dit scherm niet meer zien",
   "spanorama.panorama.success": "Panorama opgeslagen als %s",
   "spanorama.panorama.failed": "Mislukt panorama op te slaan"
 }
