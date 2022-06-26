@@ -248,8 +248,6 @@ public class PanoramaClientEvents {
     }
 
     void createPanorama() {
-        final int  width       = 1920;
-        final int  height      = 1920;
         final long currentTime = System.currentTimeMillis();
 
         Minecraft     instance      = Minecraft.getInstance();
@@ -259,7 +257,7 @@ public class PanoramaClientEvents {
         LevelRenderer levelRenderer = instance.levelRenderer;
         int           oldWidth      = window.getWidth();
         int           oldHeight     = window.getHeight();
-        RenderTarget  rendertarget  = new TextureTarget(width, height, true, Minecraft.ON_OSX);
+        RenderTarget  rendertarget  = new TextureTarget(Config.renderResolution, Config.renderResolution, true, Minecraft.ON_OSX);
         float         oldXRot       = player.getXRot();
         float         oldYRot       = player.getYRot();
         float         oldXRot0      = player.xRotO;
@@ -269,8 +267,8 @@ public class PanoramaClientEvents {
         try {
             gameRenderer.setPanoramicMode(true);
             levelRenderer.graphicsChanged();
-            window.setWidth(width);
-            window.setHeight(height);
+            window.setWidth(Config.renderResolution);
+            window.setHeight(Config.renderResolution);
 
             for (int stage = 0; stage < 6; ++stage) {
                 applyRotationForStage(player, oldYRot, stage);

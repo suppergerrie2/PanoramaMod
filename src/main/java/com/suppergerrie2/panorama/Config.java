@@ -22,7 +22,7 @@ public class Config {
 
     public static Path panoramaSaveFolder = new File("./panoramas/").toPath();
     public static boolean useCustomPanorama = true;
-    public static boolean disableFlashWarning = false;
+    public static int renderResolution = 1920;
 
     static {
         final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder()
@@ -44,7 +44,7 @@ public class Config {
     private static void bakeClient() {
         panoramaSaveFolder = new File(CLIENT.savePath.get()).toPath();
         useCustomPanorama = CLIENT.useCustomPanoramas.get();
-        disableFlashWarning = CLIENT.disableFlashWarning.get();
+        renderResolution = CLIENT.renderResolution.get();
     }
 
     public static void loadConfig(ForgeConfigSpec spec, Path path) {
@@ -62,7 +62,7 @@ public class Config {
 
         public final ForgeConfigSpec.ConfigValue<String> savePath;
         public final ForgeConfigSpec.BooleanValue useCustomPanoramas;
-        public final ForgeConfigSpec.BooleanValue disableFlashWarning;
+        public final ForgeConfigSpec.IntValue     renderResolution;
 
         ClientConfig(ForgeConfigSpec.Builder builder) {
             builder.push("Save locations");
@@ -76,9 +76,9 @@ public class Config {
                     .comment("Whether to use custom panoramas on the main menu")
                     .define("useCustomPanoramas", true);
 
-            disableFlashWarning = builder
-                    .comment("Whether to show the flash warning screen on launch. ")
-                    .define("disableFlashWarning", false);
+            renderResolution = builder
+                    .comment("The resolution of one image in the panorama. Increasing the resolution will lead to higher quality images but at the cost of performance and storage space")
+                    .defineInRange("renderResolution", 1920, 240, 8192);
 
             builder.pop();
         }
