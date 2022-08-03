@@ -7,17 +7,22 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.*;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.CubeMap;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.ScreenOpenEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -27,7 +32,9 @@ import org.lwjgl.glfw.GLFW;
 import oshi.util.tuples.Pair;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -42,19 +49,18 @@ public class PanoramaClientEvents {
     private static final Logger                          LOGGER             = LogManager.getLogger();
     static final         HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
 
-    static {
-        ClientRegistry.registerKeyBinding(createPanoramaKey);
-    }
-
     public PanoramaClientEvents() {
         MinecraftForge.EVENT_BUS.addListener(this::inputEvent);
         MinecraftForge.EVENT_BUS.addListener(this::openMainMenu);
-        FMLJavaModLoadingContext.get()
-                                .getModEventBus()
-                                .addListener(Config::onModConfigEvent);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(Config::onModConfigEvent);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerKeyMappingsEvent);
 
         panoramaSaveFolder = Minecraft.getInstance().gameDirectory.toPath()
                                                                   .resolve("panoramas");
+    }
+
+    public void registerKeyMappingsEvent(RegisterKeyMappingsEvent event) {
+        event.register(createPanoramaKey);
     }
 
     private static void takeScreenshot(RenderTarget rendertarget, final int stage, final long time,
@@ -241,7 +247,7 @@ public class PanoramaClientEvents {
         }
     }
 
-    public void openMainMenu(ScreenOpenEvent event) {
+    public void openMainMenu(ScreenEvent.Opening event) {
         if (event.getScreen() instanceof TitleScreen titleScreen) {
             setRandomPanorama(titleScreen);
         }
@@ -337,7 +343,7 @@ public class PanoramaClientEvents {
     }
 
     @SubscribeEvent
-    void inputEvent(InputEvent.KeyInputEvent event) {
+    void inputEvent(InputEvent.Key event) {
         if (createPanoramaKey.consumeClick()) {
             createPanorama();
         }
