@@ -19,7 +19,11 @@
   },
   "1.19": {
     "1.4.4": "- Update to 1.19",
-    "1.5.0": "- Change panorama creation to prevent screen flickering.\n- Add config option to set render resolution."
+    "1.5.0": "- Change panorama creation to prevent screen flickering.\n- Add config option to set render resolution.",
+    "1.5.1": "- Update to recommended build to fix breaking changes from forge."
+  },
+  "1.19.1": {
+    "1.5.1": "- Update to recommended build to fix breaking changes from forge."
   },
   "promos": {
     "1.14.4-latest": "1.1",
@@ -32,7 +36,9 @@
     "1.16.3-recommended": "1.4.1",
     "1.16.5-latest": "1.4.3",
     "1.16.5-recommended": "1.4.3",
-    "1.19-latest": "1.5.0",
-    "1.19-recommended": "1.5.0"
+    "1.19-latest": "1.5.1",
+    "1.19-recommended": "1.5.1",
+    "1.19.1-latest": "1.5.1",
+    "1.19.1-recommended": "1.5.1"
   }
 }

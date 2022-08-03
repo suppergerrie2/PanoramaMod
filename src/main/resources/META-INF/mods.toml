@@ -14,3 +14,10 @@ authors="suppergerrie2"
 description='''
 Adds the ability to make panoramas in minecraft, these can then be put in resourcepacks to display on the main menu.
 '''
+
+[[dependencies.spanorama]]
+modId="forge"
+mandatory=true
+versionRange="[41.0.64,)"
+ordering="NONE"
+side="BOTH"
