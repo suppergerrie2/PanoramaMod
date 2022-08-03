@@ -284,10 +284,7 @@ public class PanoramaClientEvents {
                 rendertarget.bindWrite(true);
                 gameRenderer.renderLevel(1.0F, 0L, new PoseStack());
 
-                File file = panoramaSaveFolder.toFile();
                 takeScreenshot(rendertarget, stage, currentTime, stage == 5);
-                Screenshot.grab(file, "panorama_" + stage + ".png", rendertarget, (p_231415_) -> {
-                });
             }
         } finally {
             player.setXRot(oldXRot);
