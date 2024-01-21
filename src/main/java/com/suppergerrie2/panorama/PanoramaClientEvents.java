@@ -20,12 +20,12 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -49,11 +49,11 @@ public class PanoramaClientEvents {
     private static final Logger                          LOGGER             = LogManager.getLogger();
     static final         HashMap<Path, DynamicTexture[]> skyboxTextureCache = new HashMap<>();
 
-    public PanoramaClientEvents() {
-        MinecraftForge.EVENT_BUS.addListener(this::inputEvent);
-        MinecraftForge.EVENT_BUS.addListener(this::openMainMenu);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(Config::onModConfigEvent);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerKeyMappingsEvent);
+    public PanoramaClientEvents(IEventBus eventBus) {
+        NeoForge.EVENT_BUS.addListener(this::inputEvent);
+        NeoForge.EVENT_BUS.addListener(this::openMainMenu);
+        eventBus.addListener(Config::onModConfigEvent);
+        eventBus.addListener(this::registerKeyMappingsEvent);
 
         panoramaSaveFolder = Minecraft.getInstance().gameDirectory.toPath()
                                                                   .resolve("panoramas");

@@ -2,10 +2,10 @@ package com.suppergerrie2.panorama;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +16,7 @@ import java.nio.file.Path;
 public class Config {
 
     public static final ClientConfig CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
+    public static final ModConfigSpec CLIENT_SPEC;
     private static final Logger LOGGER = LogManager
             .getLogger(PanoramaMod.MOD_ID + " Mod Event Subscriber");
 
@@ -25,7 +25,7 @@ public class Config {
     public static int renderResolution = 1920;
 
     static {
-        final Pair<ClientConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder()
+        final Pair<ClientConfig, ModConfigSpec> specPair = new ModConfigSpec.Builder()
                 .configure(ClientConfig::new);
         CLIENT_SPEC = specPair.getRight();
         CLIENT = specPair.getLeft();
@@ -47,7 +47,7 @@ public class Config {
         renderResolution = CLIENT.renderResolution.get();
     }
 
-    public static void loadConfig(ForgeConfigSpec spec, Path path) {
+    public static void loadConfig(ModConfigSpec spec, Path path) {
         final CommentedFileConfig configData = CommentedFileConfig.builder(path)
                 .sync()
                 .autosave()
@@ -60,11 +60,11 @@ public class Config {
 
     public static class ClientConfig {
 
-        public final ForgeConfigSpec.ConfigValue<String> savePath;
-        public final ForgeConfigSpec.BooleanValue useCustomPanoramas;
-        public final ForgeConfigSpec.IntValue     renderResolution;
+        public final ModConfigSpec.ConfigValue<String> savePath;
+        public final ModConfigSpec.BooleanValue useCustomPanoramas;
+        public final ModConfigSpec.IntValue     renderResolution;
 
-        ClientConfig(ForgeConfigSpec.Builder builder) {
+        ClientConfig(ModConfigSpec.Builder builder) {
             builder.push("Save Settings");
             savePath = builder
                     .comment("Where to save the panoramas")

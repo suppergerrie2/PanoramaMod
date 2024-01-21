@@ -1,23 +1,21 @@
 modLoader="javafml"
-loaderVersion="[34,)"
+loaderVersion="${loader_version_range}"
 issueTrackerURL="https://github.com/suppergerrie2/PanoramaMod/issues"
-license="GNU General Public License v3.0"
+license="${mod_license}"
 
 [[mods]]
-modId="spanorama"
-version="${file.jarVersion}"
+modId="${mod_id}"
+version="${mod_version}"
 updateJSONURL="https://raw.githubusercontent.com/suppergerrie2/PanoramaMod/master/update.json"
-displayName="Panorama"
+displayName="${mod_name}"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/panorama-creator"
 credits="liachmodded for making runorama which helped a lot and Cadiboo for his example on keybindings"
-authors="suppergerrie2"
-description='''
-Adds the ability to make panoramas in minecraft, these can then be put in resourcepacks to display on the main menu.
-'''
+authors="${mod_authors}"
+description='''${mod_description}'''
 
-[[dependencies.spanorama]]
-modId="forge"
-mandatory=true
-versionRange="[41.0.64,)"
+[[dependencies.${mod_id}]]
+modId="neoforge"
+type="required"
+versionRange="${neo_version_range}"
 ordering="NONE"
 side="BOTH"
