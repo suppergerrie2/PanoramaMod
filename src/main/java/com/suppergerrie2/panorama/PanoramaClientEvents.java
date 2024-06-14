@@ -268,6 +268,7 @@ public class PanoramaClientEvents {
         float         oldYRot       = player.getYRot();
         float         oldXRot0      = player.xRotO;
         float         oldYRot0      = player.yRotO;
+        RenderTarget  oldMainTarget = instance.getMainRenderTarget();
         gameRenderer.setRenderBlockOutline(false);
 
         try {
@@ -275,6 +276,7 @@ public class PanoramaClientEvents {
             levelRenderer.graphicsChanged();
             window.setWidth(Config.renderResolution);
             window.setHeight(Config.renderResolution);
+            instance.mainRenderTarget = rendertarget;
 
             for (int stage = 0; stage < 6; ++stage) {
                 applyRotationForStage(player, oldYRot, stage);
@@ -297,6 +299,7 @@ public class PanoramaClientEvents {
             rendertarget.destroyBuffers();
             gameRenderer.setPanoramicMode(false);
             levelRenderer.graphicsChanged();
+            instance.mainRenderTarget = oldMainTarget;
             instance.getMainRenderTarget()
                     .bindWrite(true);
         }

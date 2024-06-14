@@ -26,10 +26,12 @@
     "1.5.1": "- Update to recommended build to fix breaking changes from forge."
   },
   "1.20.1": {
-    "1.5.1": "- Update to recommended build to fix breaking changes from forge."
+    "1.5.1": "- Update to recommended build to fix breaking changes from forge.",
+    "1.5.2": "- Fix panorama creation not working with Ars Nouveau."
   },
   "1.20.4": {
-    "1.6.0": "- Update to 1.20.4\n- Port to NeoForge"
+    "1.6.0": "- Update to 1.20.4\n- Port to NeoForge",
+    "1.6.1": "- Fix panorama creation not working with Ars Nouveau."
   },
   "promos": {
     "1.14.4-latest": "1.1",
@@ -46,9 +48,9 @@
     "1.19-recommended": "1.5.1",
     "1.19.1-latest": "1.5.1",
     "1.19.1-recommended": "1.5.1",
-    "1.20.1-latest": "1.5.1",
-    "1.20.1-recommended": "1.5.1",
-    "1.20.4-latest": "1.6.0",
-    "1.20.4-recommended": "1.6.0"
+    "1.20.1-latest": "1.5.2",
+    "1.20.1-recommended": "1.5.2",
+    "1.20.4-latest": "1.6.1",
+    "1.20.4-recommended": "1.6.1"
   }
 }
