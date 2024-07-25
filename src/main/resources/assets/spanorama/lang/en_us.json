@@ -2,5 +2,13 @@
   "spanorama.panorama.success": "Saved panorama as %s",
   "spanorama.panorama.failed": "Failed to save panorama",
   "key.categories.spanorama": "Panorama Creator",
-  "spanorama.key.createPanorama": "Create Panorama"
+  "spanorama.key.createPanorama": "Create Panorama",
+  "spanorama.configuration.renderResolution": "Render Resolution",
+  "spanorama.configuration.renderResolution.tooltip": "The resolution of the panorama images",
+  "spanorama.configuration.Save Settings": "Save Settings",
+  "spanorama.configuration.panoramaSaveFolder": "Panorama Save Folder",
+  "spanorama.configuration.panoramaSaveFolder.tooltip": "The folder where the panoramas will be saved",
+  "spanorama.configuration.Main menu": "Main menu",
+  "spanorama.configuration.useCustomPanoramas": "Use Custom Panoramas",
+  "spanorama.configuration.useCustomPanoramas.tooltip": "Use custom panoramas instead of the default ones"
 }

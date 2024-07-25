@@ -4,9 +4,9 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -228,22 +228,22 @@ public class PanoramaClientEvents {
 
         ResourceLocation base;
         if (textures == null) {
-            base = new ResourceLocation("minecraft", "textures/gui/title/background/panorama");
+            base = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/title/background/panorama");
         } else {
-            base = new ResourceLocation(PanoramaMod.MOD_ID,
+            base = ResourceLocation.fromNamespaceAndPath(PanoramaMod.MOD_ID,
                                         "textures/gui/title/background/panorama/" + textures.getB());
 
             for (int i = 0; i < 6; i++) {
                 Minecraft.getInstance()
                          .getTextureManager()
-                         .register(new ResourceLocation(base.getNamespace(), base.getPath() + "_" + i + ".png"),
+                         .register(ResourceLocation.fromNamespaceAndPath(base.getNamespace(), base.getPath() + "_" + i + ".png"),
                                    textures.getA()[i]);
             }
         }
 
         TitleScreen.CUBE_MAP = new CubeMap(base);
         if (screen != null) {
-            screen.panorama = new PanoramaRenderer(TitleScreen.CUBE_MAP);
+            screen.PANORAMA = new PanoramaRenderer(TitleScreen.CUBE_MAP);
         }
     }
 
@@ -284,7 +284,7 @@ public class PanoramaClientEvents {
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
                 rendertarget.bindWrite(true);
-                gameRenderer.renderLevel(1.0F, 0L, new PoseStack());
+                gameRenderer.renderLevel(DeltaTracker.ONE);
 
                 takeScreenshot(rendertarget, stage, currentTime, stage == 5);
             }
